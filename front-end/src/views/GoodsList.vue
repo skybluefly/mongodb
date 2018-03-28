@@ -166,82 +166,28 @@ export default {
     },
     methods:{
         getGoodsList(flag){
-            var param = {
-              page:this.page,
-              pageSize:this.pageSize,
-              sort:this.sortFlag ? 1 : -1 ,  // sortFlag为true升序
-              priceLevel:this.priceChecked   // 点击的价格区间
-            }
-            this.loading = true;
-            axios.get("/goods/list",{
-              params:param    // 传参
-            }).then((res)=>{
-                var res = res.data;
-                this.loading = false;
-                if(res.status == "0"){
-                  if(flag){   // true.商品数据累加
-                    this.goodsList = this.goodsList.concat(res.result.list);
-
-                    if(res.result.count == 0){  // 0条数据了，就不加载滚动加载方法了
-                      this.busy = true; // 禁用
-                    }else{
-                      this.busy = false; // 启用
-                    }
-
-                  }else{  // 只加载一页
-                    this.goodsList = res.result.list;
-                    this.busy = false;
-                  }
-                }else{
-                  this.goodsList = [];
-                }
-            })
+           
         },
         sortGoods(){   // 点击排序商品
-          this.sortFlag = !this.sortFlag;
-          this.page = 1; // 点击价格排序后从第一页开始
-          this.getGoodsList();  // 重新加载数据
+         
         },
         setPriceFilter(index){   // 点击价格
-            this.priceChecked = index;
-            this.closePop();
-            this.getGoodsList();
+           
         },
         showFilterPop(){     // 点击filterBy出现价格菜单和遮罩
-            this.filterBy = true;
-            this.overLayFlag = true;
+          
         },
         closePop(){    // 关闭价格菜单和遮罩
-            this.filterBy = false;
-            this.overLayFlag = false;
+           
         },
         loadMore(){   // 滚动加载插件方法
-          this.busy = true; // 滚动就禁用，防止下一个滚动
-          setTimeout(() => {   // 一个滚动完成之后再滚动加载下一个
-            this.page++;
-            this.getGoodsList(true);  // 滚动加载是累加数据，并不是只显示一页数据，so需要传参去请求数据的地方判断一下
-          }, 500);
+         
         },
         addCart(productId){  // 点击加入购物车
-          axios.post("/goods/addCart",{   // 接口设置在server/routes/goods.js
-            productId:productId
-          }).then((res)=>{
-            var res = res.data;
-            if(res.status==0){
-              //alert("加入成功")
-              this.mdShowCart = true;   // 加入购物车成功，成功的模态框显示
-
-              // 购物车数量加1
-              this.$store.commit('updateCartCount',1);
-            }else{
-              // alert("msg:"+res.msg)
-              this.mdShow = true;   // 未登录模态框显示
-            }
-          })
+         
         },
         closeModal(){    // 关闭模态框
-              this.mdShow = false;   // 未登录模态框消失
-              this.mdShowCart = false;   // 未登录模态框消失
+              
         }
     }
 }

@@ -26,10 +26,33 @@ mongoose.connection.on("disconnected",function(){
 // 二级路由
 // 查询商品列表数据
 /* GET goods page. */
-router.get('/', function(req, res, next) {
+router.get('/list', function(req, res, next) {
 
+		let page = parseInt(req.param("page"));  // get请求数据拿到数据：res.param()
+	let pageSize = parseInt(req.param("pageSize"));
+	let priceLevel = req.param("priceLevel");  // 传过来的价格区间
+	let sort = req.param("sort");
+	let skip = (page-1)*pageSize; // 跳过的数据条数，(分页的公式).
+	var priceGt = '',priceLte = '';
+	let params = {};
+	if(priceLevel != 'all'){   // 价格区间过滤功能
+		switch (priceLevel){
+			case '0':priceGt=0;priceLte =100;break;
+			case '1':priceGt=100;priceLte =500;break;
+			case '2':priceGt=500;priceLte =1000;break;
+			case '3':priceGt=1000;priceLte =5000;break;
+		}
+		params = {
+			salePrice:{
+				$gt:priceGt,
+				$lte:priceLte
+			}
+		}
+	}
+	let goodsModel = Goods.find(params).skip(skip).limit(pageSize); // 先查询所有，skip(skip)跳过skip条数据，limit(pageSize)一页多少条数据.即分页功能实现
+	goodsModel.sort({'salePrice':sort}); // 对价格排序功能
 
-	Goods.find({},function(err, doc){
+	goodsModel.exec(function(err, doc){
 		if(err) {
 			res.json({
 				status:'1',

@@ -166,28 +166,64 @@ export default {
     },
     methods:{
         getGoodsList(flag){
-           
+          let param={
+            page:this.page,
+            pageSize:this.pageSize,
+            sort:this.sortFlag ? 1 : -1 ,  // sortFlag为true升序
+            priceLevel:this.priceChecked
+          }
+           this.loading = true;
+           axios.get('/goods/list',{params:param}).then(  (res)=> {
+              var res=res.data;
+              this.loading = false;
+               if(res.status == "0"){
+                  if (flag) {
+                    this.goodsList =this.goodsList.concat( res.result.list );
+                    if(res.result.count == 0){  // 0条数据了，就不加载滚动加载方法了
+                      this.busy = true; // 禁用
+                    }else{
+                      this.busy = false; // 启用
+                    }
+                  }else{
+                     this.goodsList = res.result.list;
+                     this.busy=false;
+                  };
+
+               }else{
+                  this.goodsList = [];
+               }
+           })
         },
         sortGoods(){   // 点击排序商品
-         
+            this.sortFlag=!this.sortFlag;
+             this.page = 1;
+            this.getGoodsList();
         },
         setPriceFilter(index){   // 点击价格
-           
+            this.priceChecked = index;
+            this.closePop();
+            this.getGoodsList();
         },
         showFilterPop(){     // 点击filterBy出现价格菜单和遮罩
-          
+
         },
         closePop(){    // 关闭价格菜单和遮罩
-           
+
         },
         loadMore(){   // 滚动加载插件方法
-         
+              this.busy = true;
+
+                  setTimeout(() => {
+                    this.page++;
+                      this.getGoodsList(true);
+
+                  }, 50);
         },
         addCart(productId){  // 点击加入购物车
-         
+
         },
         closeModal(){    // 关闭模态框
-              
+
         }
     }
 }

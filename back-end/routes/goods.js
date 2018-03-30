@@ -78,7 +78,78 @@ router.get('/list', function(req, res, next) {
 
 // 加入到购物车
 // 是二级路由，一级路由在app.js
+router.post("/addCart",function(req, res, next){
+	var userId = '100000077',
+		productId = req.body.productId;  // post请求拿到res参数：req.body
+	var User = require('../server/users.js');  // 引入user模型
+	User.findOne({
+		userId:userId   // 查询条件
+	},function(err,userDoc){
+		if(err){
+			res.json({
+				status:"1",
+				msg:err.message
+			})
+		}else{
+			console.log("userDoc"+userDoc);  // 用户数据
 
+			if(userDoc){
+				let goodsItem = '';
+				userDoc.cartList.forEach(function(item){    // 遍历用户购物车，判断加入购物车的商品是否已经存在
+					if(item.productId == productId){
+						goodsItem = item;
+						item.productNum++; // 购物车这件商品数量+1
+					}
+				})
+				if(goodsItem){  // 若购物车商品已存在
+					userDoc.save(function (err2,doc2) {
+						if(err2){
+							res.json({
+								status:"1",
+								msg:err2.message
+							})
+						}else{
+							res.json({
+								status:'0',
+								msg:'',
+								result:'suc'
+							})
+						}
+		            })
+				}else{
+			Goods.findOne({productId:productId},function(err1,doc){  // 从商品列表页Goods查询点击加入购物车的那件商品信息
+				if(err1){
+					res.json({
+						status:"1",
+						msg:err1.message
+					})
+				}else{
+					if(doc){
+						doc.productNum = 1;   // 在Goods模型中添加属性，要去models/goods.js的Schema添加这两个属性。
+						doc.checked = 1;
+						userDoc.cartList.push(doc);  // 添加信息到用户购物车列表中
+						userDoc.save(function(err2,doc2){  // 保存数据库
+							if(err2){
+								res.json({
+									status:"1",
+									msg:err2.message
+								})
+							}else{
+								res.json({
+									status:"0",
+									msg:'',
+									result:'suc'
+								})
+							}
+						})
+					}
+				}
+			})
+		}
+		}
+		}
+	})
+})
 
 
 module.exports = router;

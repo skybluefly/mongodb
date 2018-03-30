@@ -220,7 +220,21 @@ export default {
                   }, 50);
         },
         addCart(productId){  // 点击加入购物车
+            axios.post("/goods/addCart",{   // 接口设置在server/routes/goods.js
+              productId:productId
+            }).then((res)=>{
+              var res = res.data;
+              if(res.status==0){
+                alert("加入成功")
+                // this.mdShowCart = true;   // 加入购物车成功，成功的模态框显示
 
+                // // 购物车数量加1
+                // this.$store.commit('updateCartCount',1);
+              }else{
+                // alert("msg:"+res.msg)
+                this.mdShow = true;   // 未登录模态框显示
+              }
+            })
         },
         closeModal(){    // 关闭模态框
 
